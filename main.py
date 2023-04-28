@@ -12,7 +12,7 @@ from algosdk import account, mnemonic
 from algosdk.v2client import algod, indexer
 from algosdk.transaction import PaymentTxn, AssetConfigTxn, AssetOptInTxn, AssetTransferTxn, ApplicationCallTxn
 from tinyman.v2.client import TinymanV2TestnetClient
-from algosdk import error
+from algosdk.error import IndexerHTTPError
 from tinyman.assets import AssetAmount
 
 ALGOD_ADDRESS = "https://testnet-api.algonode.network"
@@ -163,7 +163,11 @@ def create_asset_transaction():
 def get_account_info(addr=None):
     if not addr:
         addr = str(input("Enter an account address:\n"))
-    acc_info = ALGOD_CLIENT.account_info(address=addr)
+    try:
+        acc_info = INDEXER_CLIENT.account_info(addr)['account']
+    except IndexerHTTPError as e:
+        print(e)
+        acc_info = None
     return acc_info
 
 
